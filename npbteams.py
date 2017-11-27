@@ -1,4 +1,4 @@
-# coding:utf-8
+# -*- coding: UTF-8 -*-
 
 import urllib2
 import lxml.html
@@ -6,5 +6,6 @@ html = urllib2.urlopen('http://npb.jp/teams/').read() # html 取得
 root = lxml.html.fromstring(html)
 
 teams = root.xpath('//a[@class="link_box"]')
-for team in teams:
-    print(team.text)
+hp = root.xpath('//a[@class="link_box"]/@href')
+for i in range(12):
+    print(teams[i].text+"\t"+"\t"+"\t"+hp[i])

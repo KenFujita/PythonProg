@@ -1,8 +1,8 @@
 # -*- coding: UTF-8 -*-
 
-import urllib2
+import urllib.request
 import lxml.html
-html = urllib2.urlopen('http://npb.jp/teams/').read() # html 取得
+html = urllib.request.urlopen('http://npb.jp/teams/').read() # html 取得
 root = lxml.html.fromstring(html)
 
 teams = root.xpath('//a[@class="link_box"]')

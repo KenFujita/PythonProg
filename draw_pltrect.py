@@ -2,9 +2,11 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+rect_list = []
+
 # 押した時
 def Press(event):
-    global x1,y1,DragFlag
+    global x1,y1,DragFlag,PlotFlag
 
     # 丸める
     cx = int(round(event.xdata))
@@ -15,6 +17,7 @@ def Press(event):
 
     # フラグをたてる
     DragFlag = True
+    PlotFlag = False
 
 # ドラッグした時
 def Drag(event):
@@ -43,19 +46,39 @@ def Drag(event):
 
 # 離した時
 def Release(event):
-    global x1,y1,x2,y2,DragFlag
+    global x1,y1,x2,y2,DragFlag,PlotFlag
     # フラグをたおす
     DragFlag = False
-    print([x1,y1,x2,y2])
+    PlotFlag = True
+    rect_list.append([x1,y1,x2-x1,y2-y1])
+    print(rect_list)
+    #for l in rect_list:
+    DrawRect(x1,x2,y1,y2)
+    plt.draw()
+
+# キーボードのキーが押された時
+def onKey(event):
+    if event.key == 'a':
+        print("q is press!!")
+        DrawRect(0,0,0,0)
+        rect_list.clear()
+        print(rect_list)
+        plt.draw()
 
 # 四角形を描く関数
 def DrawRect(x1,x2,y1,y2):
+    global PlotFlag
     Rect = [ [ [x1,x2], [y1,y1] ],
              [ [x2,x2], [y1,y2] ],
              [ [x1,x2], [y2,y2] ],
              [ [x1,x1], [y1,y2] ] ]
+
     for i, rect in enumerate(Rect):
-        lns[i].set_data(rect[0],rect[1])
+        if PlotFlag:
+            plt.plot(rect[0],rect[1],color='r',lw=2)
+        else:
+            lns[i].set_data(rect[0],rect[1])
+    #print([x1,x2,y1,y2])
 
 # 画像を開く    
 from PIL import Image
@@ -68,8 +91,8 @@ img = np.asarray(img)
 # 初期値
 x1  = 0 
 y1  = 0
-x2  = 50
-y2  = 50
+x2  = 0
+y2  = 0
 
 # ドラッグしているかのフラグ
 DragFlag = False
@@ -98,6 +121,7 @@ lns = []
 for rect in Rect:
     ln, = plt.plot(rect[0],rect[1],color='r',lw=2)
     lns.append(ln)
+#print(lns)
 
 # カラーマップの範囲を合わせる 
 plt.clim(im1.get_clim())
@@ -109,5 +133,6 @@ plt.axis('off')
 plt.connect('button_press_event', Press)
 plt.connect('motion_notify_event', Drag)
 plt.connect('button_release_event', Release)
+plt.connect('key_press_event', onKey)
 
 plt.show()

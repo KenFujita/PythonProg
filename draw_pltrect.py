@@ -58,16 +58,19 @@ def Release(event):
 
 # キーボードのキーが押された時
 def onKey(event):
+    global lns,PlotFlag,fig
     if event.key == 'a':
-        print("q is press!!")
-        DrawRect(0,0,0,0)
+        print("a is press!!")
         rect_list.clear()
         print(rect_list)
+        fig.delaxes(ax2)
+        lns.clear()
+        conf_plt(0,0,0,0)
         plt.draw()
 
 # 四角形を描く関数
 def DrawRect(x1,x2,y1,y2):
-    global PlotFlag
+    global ax2,lns,PlotFlag
     Rect = [ [ [x1,x2], [y1,y1] ],
              [ [x2,x2], [y1,y2] ],
              [ [x1,x2], [y2,y2] ],
@@ -75,10 +78,53 @@ def DrawRect(x1,x2,y1,y2):
 
     for i, rect in enumerate(Rect):
         if PlotFlag:
-            plt.plot(rect[0],rect[1],color='r',lw=2)
+            ax2.plot(rect[0],rect[1],color='r',lw=2)
         else:
             lns[i].set_data(rect[0],rect[1])
     #print([x1,x2,y1,y2])
+
+# pltの初期化
+def conf_plt(x1,x2,y1,y2):
+    global DragFlag,fig,ax2
+    DragFlag = False
+    # plot
+    plt.close('all')
+    fig = plt.figure(figsize=(8,4))
+    
+    # subplot 1
+    #ax1 = fig.add_subplot(1,1,1)
+    ax2 = fig.add_subplot(1,1,1)
+    
+    # 画像を描画
+    #im1 = ax1.imshow(img)
+    
+    # 四角形を描画
+    Rect = [ [ [x1,x2], [y1,y1] ],
+             [ [x2,x2], [y1,y2] ],
+             [ [x1,x2], [y2,y2] ],
+             [ [x1,x1], [y1,y2] ] ]
+    
+    for rect in Rect:
+        ln, = ax2.plot(rect[0],rect[1],color='r',lw=2)
+        lns.append(ln)
+    #print(lns)
+    
+    # カラーマップの範囲を合わせる 
+    #ax1.set_clim(im1.get_clim())
+    
+    # 軸を消す
+    plt.axis('off')
+    
+    # 背景画像を表示
+    plt.imshow(img)
+    
+    # イベント
+    plt.connect('button_press_event', Press)
+    plt.connect('motion_notify_event', Drag)
+    plt.connect('button_release_event', Release)
+    plt.connect('key_press_event', onKey)
+    
+    plt.show()
 
 # 画像を開く    
 from PIL import Image
@@ -103,36 +149,11 @@ iy1, iy2 = sorted([y1,y2])
 
 # plot
 plt.close('all')
-plt.figure(figsize=(8,4))
-
+fig = None
 # subplot 1
-plt.subplot(1,1,1)
-
-# 画像を描画
-im1 = plt.imshow(img, cmap='gray')
-
-# 四角形を描画
-Rect = [ [ [x1,x2], [y1,y1] ],
-         [ [x2,x2], [y1,y2] ],
-         [ [x1,x2], [y2,y2] ],
-         [ [x1,x1], [y1,y2] ] ]
+#ax1 = fig.add_subplot(1,1,1)
+ax2 = None
 
 lns = []
-for rect in Rect:
-    ln, = plt.plot(rect[0],rect[1],color='r',lw=2)
-    lns.append(ln)
-#print(lns)
 
-# カラーマップの範囲を合わせる 
-plt.clim(im1.get_clim())
-
-# 軸を消す
-plt.axis('off')
-
-# イベント
-plt.connect('button_press_event', Press)
-plt.connect('motion_notify_event', Drag)
-plt.connect('button_release_event', Release)
-plt.connect('key_press_event', onKey)
-
-plt.show()
+conf_plt(x1,x2,y1,y2)

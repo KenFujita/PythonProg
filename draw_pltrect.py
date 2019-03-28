@@ -150,33 +150,50 @@ class DrawRectangle:
 
         return self.rect_list
 
-# 画像を開く
+
 from PIL import Image
 import csv
-fnm = './gorillaface/gorillaface2.jpg'
-posi_img = []
-posi_img.append(fnm)
+import glob
 
-img = Image.open(fnm)
-# numpy.ndarrayに
-img = np.asarray(img)
+file_l = [ fn for fn in glob.glob('./gorilla/*') ]
+print("sum of file: {}".format(str(len(file_l))))
+for i,fnm in enumerate(file_l):
+    print("now list of {}".format(str(i)))
+    #fnm = './gorillaface/gorillaface2.jpg'
+    posi_img = []
+    posi_img.append(fnm)
 
-dr_rect = DrawRectangle(img)
-img_points = dr_rect.conf_plt(0,0,0,0)
-print("done")
-sum_rect = len(img_points)
-posi_img.append(sum_rect)
-for n in range(sum_rect):
-    x,y,w,h = img_points[n]
-    posi_img.append(x)
-    posi_img.append(y)
-    posi_img.append(w)
-    posi_img.append(h)
-print(posi_img)
+    # 画像を開く
+    img = Image.open(fnm)
+    # numpy.ndarrayに
+    img = np.asarray(img)
 
-with open('./test_imlist.csv','w') as f:
-    writer = csv.writer(f,delimiter=' ')
-    # 単一行の場合はwriterow()を使う。複数行の場合はwriterows()
-    writer.writerow(posi_img)
+    dr_rect = DrawRectangle(img)
+    img_points = dr_rect.conf_plt(0,0,0,0)
+    print("done")
+    sum_rect = len(img_points)
+    posi_img.append(sum_rect)
+    for n in range(sum_rect):
+        x,y,w,h = img_points[n]
+        if x==0 and y==0 and w==0 and h==0:
+            break
+        posi_img.append(x)
+        posi_img.append(y)
+        posi_img.append(w)
+        posi_img.append(h)
+    print(posi_img)
+
+    if len(posi_img) == 2:
+        img = None
+        dr_rect = None
+        continue
+
+    with open('./test_imlist.csv','a') as f:
+        writer = csv.writer(f,delimiter=' ')
+        # 単一行の場合はwriterow()を使う。複数行の場合はwriterows()
+        writer.writerow(posi_img)
+    img = None
+    dr_rect = None
+
 with open('./test_imlist.csv') as f:
     print(f.read())

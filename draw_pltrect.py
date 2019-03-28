@@ -84,6 +84,7 @@ class DrawRectangle:
         # キーボードの'n'が押されたとき
         if event.key == 'n':
             print("n is press!!")
+            plt.close('all')
 
     # 四角形を描く関数
     def DrawRect(self,x1,x2,y1,y2):
@@ -147,12 +148,35 @@ class DrawRectangle:
 
         plt.show()
 
+        return self.rect_list
+
 # 画像を開く
 from PIL import Image
+import csv
 fnm = './gorillaface/gorillaface2.jpg'
+posi_img = []
+posi_img.append(fnm)
+
 img = Image.open(fnm)
 # numpy.ndarrayに
 img = np.asarray(img)
 
 dr_rect = DrawRectangle(img)
-dr_rect.conf_plt(0,0,0,0)
+img_points = dr_rect.conf_plt(0,0,0,0)
+print("done")
+sum_rect = len(img_points)
+posi_img.append(sum_rect)
+for n in range(sum_rect):
+    x,y,w,h = img_points[n]
+    posi_img.append(x)
+    posi_img.append(y)
+    posi_img.append(w)
+    posi_img.append(h)
+print(posi_img)
+
+with open('./test_imlist.csv','w') as f:
+    writer = csv.writer(f,delimiter=' ')
+    # 単一行の場合はwriterow()を使う。複数行の場合はwriterows()
+    writer.writerow(posi_img)
+with open('./test_imlist.csv') as f:
+    print(f.read())

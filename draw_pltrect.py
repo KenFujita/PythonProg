@@ -11,9 +11,10 @@ class DrawRectangle:
         self.x2  = 0
         self.y2  = 0
 
-        # ドラッグしているかのフラグ
+        # フラグ類
         self.DragFlag = False
         self.PlotFlag = False
+        self.StopFlag = False
 
         # ソート
         self.ix1, self.ix2 = sorted([self.x1,self.x2])
@@ -83,7 +84,11 @@ class DrawRectangle:
             plt.draw()
         # キーボードの'n'が押されたとき
         if event.key == 'n':
-            print("n is press!!")
+            print("let's go next image!!")
+            plt.close('all')
+        if event.key == 'm':
+            print("finish detect rectangle")
+            self.StopFlag = True
             plt.close('all')
 
     # 四角形を描く関数
@@ -148,17 +153,27 @@ class DrawRectangle:
 
         plt.show()
 
-        return self.rect_list
+        return self.StopFlag,self.rect_list
 
 
 from PIL import Image
 import csv
 import glob
+import sys
+import os
 
-file_l = [ fn for fn in glob.glob('./gorilla/*') ]
+img_fol = sys.argv[1] + '*'
+file_l = [ fn for fn in glob.glob(img_fol) ]
 print("sum of file: {}".format(str(len(file_l))))
+index = 0
+if os.path.exists('./AV_data/tmp_image_index.txt'):
+    with open('./AV_data/tmp_image_index.txt') as f:
+        index = int(f.read())+1
+
 for i,fnm in enumerate(file_l):
     print("now list of {}".format(str(i)))
+    if i < index:
+        continue
     #fnm = './gorillaface/gorillaface2.jpg'
     posi_img = []
     posi_img.append(fnm)
@@ -169,7 +184,8 @@ for i,fnm in enumerate(file_l):
     img = np.asarray(img)
 
     dr_rect = DrawRectangle(img)
-    img_points = dr_rect.conf_plt(0,0,0,0)
+    stop_f,img_points = dr_rect.conf_plt(0,0,0,0)
+
     print("done")
     sum_rect = len(img_points)
     posi_img.append(sum_rect)
@@ -184,16 +200,35 @@ for i,fnm in enumerate(file_l):
     print(posi_img)
 
     if len(posi_img) == 2:
+        with open('./AV_data/er_nega.csv','a') as f:
+            writer = csv.writer(f,delimiter=' ')
+            # 単一行の場合はwriterow()を使う。複数行の場合はwriterows()
+            nega_fullpath = os.path.abspath(posi_img[0])
+            writer.writerow(nega_fullpath)
         img = None
         dr_rect = None
+        if stop_f:          # ストップフラグが立ったら
+            with open('./AV_data/tmp_image_index.txt','w') as f:
+                f.write(str(i))
+                print("write tmp index")
+            break
         continue
 
-    with open('./test_imlist.csv','a') as f:
+    with open('./AV_data/er_posi.csv','a') as f:
         writer = csv.writer(f,delimiter=' ')
         # 単一行の場合はwriterow()を使う。複数行の場合はwriterows()
         writer.writerow(posi_img)
     img = None
     dr_rect = None
+    if stop_f:              # ストップフラグが立ったら
+        with open('./AV_data/tmp_image_index.txt','w') as f:
+            f.write(str(i))
+            print("write tmp index")
+        break
 
-with open('./test_imlist.csv') as f:
-    print(f.read())
+with open('./AV_data/er_posi.csv') as f:
+    posi_list = f.readlines()
+    print("sum of posi: {}".format(str(len(posi_list))))
+with open('./AV_data/er_nega.csv') as f:
+    nega_list = f.readlines()
+    print("sum of nega: {}".format(str(len(nega_list))))

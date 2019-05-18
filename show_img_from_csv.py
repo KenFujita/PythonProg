@@ -34,7 +34,6 @@ with open(csv_file) as f:
 '''
 pd.set_option("display.max_colwidth", 120)  #pandasのカラム内の最大表示文字数
 image_paths = pd.read_csv(csv_file,header=None,encoding="shift-jis",names=('img',),nrows=20)
-for index,row in image_paths.iterrows():
-    imgname = row['img']
-    print(imgname)
-    show_image(imgname)
+for row in image_paths['img']:
+    print(row)
+    show_image(row)

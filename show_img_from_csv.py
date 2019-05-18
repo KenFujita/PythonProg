@@ -8,6 +8,7 @@ import sys
 del_flag = False
 
 def onKey(event):
+    global del_flag         # globalで宣言しないと関数外の変数の中身を変更できない！！
     if event.key == 'd':
         print("this image delete csv!")
         del_flag = True
@@ -34,6 +35,12 @@ with open(csv_file) as f:
 '''
 pd.set_option("display.max_colwidth", 120)  #pandasのカラム内の最大表示文字数
 image_paths = pd.read_csv(csv_file,header=None,encoding="shift-jis",names=('img',),nrows=20)
-for row in image_paths['img']:
-    print(row)
+for i,row in enumerate(image_paths['img']):
+    #print('{}: {}'.format(str(i),row))
     show_image(row)
+    print("finish show image")
+    if del_flag:
+        print("delete the image")
+        image_paths.drop(i,inplace=True)    # 元のDataFrame(この場合はimage_paths)の値は変更されない
+        del_flag = False
+print(image_paths)

@@ -44,3 +44,5 @@ for i,row in enumerate(image_paths['img']):
         image_paths.drop(i,inplace=True)    # 元のDataFrame(この場合はimage_paths)の値は変更されない
         del_flag = False
 print(image_paths)
+image_paths.to_csv(csv_file,header=False,index=False,columns=['img'])
+print("rewrited image name to csv")

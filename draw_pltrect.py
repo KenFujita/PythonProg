@@ -100,7 +100,7 @@ class DrawRectangle:
                  [ [x1,x1], [y1,y2] ] ]
         for i, rect in enumerate(Rect):
             if self.PlotFlag:
-                self.ax2.plot(rect[0],rect[1],color='r',lw=2)
+                self.ax2.plot(rect[0],rect[1],color='r',lw=1)
             else:
                 self.lns[i].set_data(rect[0],rect[1])
                 #print([x1,x2,y1,y2])
@@ -132,7 +132,7 @@ class DrawRectangle:
                  [ [self.x1,self.x1], [self.y1,self.y2] ] ]
 
         for rect in Rect:
-            ln, = self.ax2.plot(rect[0],rect[1],color='r',lw=2)
+            ln, = self.ax2.plot(rect[0],rect[1],color='r',lw=1)
             self.lns.append(ln)
             #print(lns)
 
@@ -166,15 +166,16 @@ img_fol = sys.argv[1] + '*'
 file_l = [ fn for fn in glob.glob(img_fol) ]
 print("sum of file: {}".format(str(len(file_l))))
 index = 0
-if os.path.exists('./AV_data/tmp_image_index.txt'):
-    with open('./AV_data/tmp_image_index.txt') as f:
+
+# 途中から始められるよう前回終了時の次の画像のindexを読み込む
+if os.path.exists('/path/to/tmp_index'):
+    with open('/path/to/tmp_index') as f:
         index = int(f.read())+1
 
 for i,fnm in enumerate(file_l):
     print("now list of {}".format(str(i)))
     if i < index:
         continue
-    #fnm = './gorillaface/gorillaface2.jpg'
     posi_img = []
     posi_img.append(fnm)
 
@@ -200,35 +201,38 @@ for i,fnm in enumerate(file_l):
     print(posi_img)
 
     if len(posi_img) == 2:
-        with open('./AV_data/er_nega.csv','a') as f:
+        # ネガ画像ファイルを登録するcsvを開く
+        with open('/path/to/negacsv','a') as f:
             writer = csv.writer(f,delimiter=' ')
             # 単一行の場合はwriterow()を使う。複数行の場合はwriterows()
             nega_fullpath = os.path.abspath(posi_img[0])
             writer.writerow(nega_fullpath)
         img = None
         dr_rect = None
-        if stop_f:          # ストップフラグが立ったら
-            with open('./AV_data/tmp_image_index.txt','w') as f:
+        if stop_f:
+            # 最終の画像ファイルのindexを保存する
+            with open('/path/to/tmp_index','w') as f:
                 f.write(str(i))
                 print("write tmp index")
             break
         continue
 
-    with open('./AV_data/er_posi.csv','a') as f:
+    # ポジ画像ファイルを登録するcsvを開く
+    with open('/path/to/posicsv','a') as f:
         writer = csv.writer(f,delimiter=' ')
         # 単一行の場合はwriterow()を使う。複数行の場合はwriterows()
         writer.writerow(posi_img)
     img = None
     dr_rect = None
     if stop_f:              # ストップフラグが立ったら
-        with open('./AV_data/tmp_image_index.txt','w') as f:
+        with open('/path/to/tmp_index','w') as f:
             f.write(str(i))
             print("write tmp index")
         break
 
-with open('./AV_data/er_posi.csv') as f:
+with open('/path/to/posicsv') as f:
     posi_list = f.readlines()
     print("sum of posi: {}".format(str(len(posi_list))))
-with open('./AV_data/er_nega.csv') as f:
+with open('/path/to/negacsv') as f:
     nega_list = f.readlines()
     print("sum of nega: {}".format(str(len(nega_list))))
